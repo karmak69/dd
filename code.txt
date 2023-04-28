@@ -1,0 +1,1189 @@
+
+public class ArmstrongClass {
+
+	    public static boolean isArmstrongNumber(int num) {
+	        int originalNum = num;
+	        int sum = 0;
+	       // int power = String.valueOf(num).length();
+	        
+	        while(num > 0) {
+	            int digit = num % 10;
+	            sum += Math.pow(digit, 3);
+	            num /= 10;
+	        }
+	        
+	        return (sum == originalNum);
+	    }
+	    
+	    public static void main(String[] args) {
+	        int num = 2;
+	        if(isArmstrongNumber(num)) {
+	            System.out.println(num + " is an Armstrong number.");
+	        } else {
+	            System.out.println(num + " is not an Armstrong number.");
+	        }
+	    }
+	}
+
+
+
+
+
+-----------------
+package ass5b;
+
+import java.sql.*;
+public class Databasemetadata {
+
+	public static void main(String args[])throws Exception
+	{
+		Class.forName("com.mysql.cj.jdbc.Driver");	
+		Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb","root","5422");
+		DatabaseMetaData dbmd=(DatabaseMetaData)con.getMetaData();
+		System.out.println("Database Name="+dbmd.getDatabaseProductName());
+		System.out.println("Database Name="+dbmd.getDatabaseProductVersion());
+		System.out.println("Database Name="+dbmd.getDriverName());
+		System.out.println("URL of Database="+dbmd.getURL());
+		System.out.println("Current UserName="+dbmd.getUserName());
+		System.out.println("======Tables======");
+		String t[]= {"TABLE"};
+		ResultSet rs=dbmd.getTables(null, null, null, t);
+		while(rs.next())
+		{
+			System.out.println(rs.getString("TABLE_NAME"));
+		}
+		con.close();
+	}
+	
+	
+
+}
+--------------------------------------------
+package ass5b;
+
+import java.sql.*;
+class Resultsetmetads {
+public static void main(String args[])throws Exception
+{
+	Class.forName("com.mysql.cj.jdbc.Driver");
+	Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb","root","5422");
+	Statement stmt=con.createStatement();
+	
+	
+	ResultSet rs=stmt.executeQuery("select * from donar"+"");
+	
+	ResultSetMetaData rsmd=rs.getMetaData();
+	
+	int n= rsmd.getColumnCount();
+	System.out.println("No. of columns="+n);
+	for(int i=1;i<=n;i++)
+	{
+		System.out.println("=======================");
+		System.out.println("Column Number:"+i);
+		System.out.println("Column Name:"+rsmd.getColumnName(i));
+		System.out.println("Column Type:"+rsmd.getColumnTypeName(i));
+		System.out.println("Column Width:"+rsmd.getColumnDisplaySize(i));
+		System.out.println("Presicion:"+rsmd.getPrecision(i));
+		System.out.println("Column Currency:"+rsmd.isCurrency(i));
+		System.out.println("Column Read-only:"+rsmd.isReadOnly(i));
+		System.out.println("Column Writable:"+rsmd.isWritable(i));
+		System.out.println("Column Searchable:"+rsmd.isSearchable(i));
+		System.out.println("Column Signed:"+rsmd.isSigned(i));
+		
+	}
+	con.close();
+}
+
+
+}
+--------------------------------------
+package ass5b;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+class TableDemo extends JFrame implements ActionListener {
+    JTextField t1, t2, t3, t4;
+    JLabel l1, l2, l3, l4;
+    JButton b1, b2;
+
+    TableDemo() {
+        setLayout(new FlowLayout());
+        setSize(500, 500);
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        l1 = new JLabel("Project Id");
+        add(l1);
+        t1 = new JTextField(10);
+        add(t1);
+
+        l2 = new JLabel("Project Name");
+        add(l2);
+        t2 = new JTextField(10);
+        add(t2);
+
+        l3 = new JLabel("Project Description");
+        add(l3);
+        t3 = new JTextField(10);
+        add(t3);
+
+        l4 = new JLabel("Project Status");
+        add(l4);
+        t4 = new JTextField(10);
+        add(t4);
+
+        b1 = new JButton("Insert");
+        add(b1);
+        b1.addActionListener(this);
+
+        b2 = new JButton("Display");
+        add(b2);
+        b2.addActionListener(this);
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        if (s.equals("Insert")) {
+            try {
+                int pid = Integer.parseInt(t1.getText());
+                String pname = t2.getText();
+                String pdesc = t3.getText();
+                String pstat = t4.getText();
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb", "root", "5422");
+                PreparedStatement st = conn.prepareStatement("insert into Project values (?, ?, ?, ?)");
+                st.setInt(1, pid);
+                st.setString(2, pname);
+                st.setString(3, pdesc);
+                st.setString(4, pstat);
+                st.executeUpdate();
+                st.close();
+                JOptionPane.showMessageDialog(this, "Inserted");
+            } catch (Exception ex) {
+                System.out.println("Error: " + ex.getMessage());
+            }
+        }
+        if (s.equals("Display")) {
+            try {
+                ResultSet rs;
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb", "root", "5422");
+                Statement st = conn.createStatement();
+                rs = st.executeQuery("select * from Project");
+                for (int row = 0; rs.next(); row++) {
+                    for (int column = 0; column < 4; column++) {
+                        System.out.println(rs.getObject(column + 1));
+                    }
+                }
+                rs.close();
+            } catch (Exception ex) {
+                System.out.println("Error: " + ex.getMessage());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new TableDemo();
+    }
+}
+--------------------------------------------
+abstract class Shape {
+    abstract double area();
+    abstract double volume();
+}
+
+class Cone extends Shape {
+    double radius, height;
+    
+    public Cone(double r, double h) {
+        radius = r;
+        height = h;
+    }
+    
+    public double area() {
+        return Math.PI * radius * (radius + Math.sqrt(radius*radius + height*height));
+    }
+    
+    public double volume() {
+        return Math.PI * radius * radius * height / 3.0;
+    }
+    
+    public String toString() {
+        return "Cone with radius = " + radius + " and height = " + height;
+    }
+}
+
+class Cylinder extends Shape {
+    double radius, height;
+    
+    public Cylinder(double r, double h) {
+        radius = r;
+        height = h;
+    }
+    
+    public double area() {
+        return 2 * Math.PI * radius * height + 2 * Math.PI * radius * radius;
+    }
+    
+    public double volume() {
+        return Math.PI * radius * radius * height;
+    }
+    
+    public String toString() {
+        return "Cylinder with radius = " + radius + " and height = " + height;
+    }
+}
+
+public class AbstractShape {
+    public static void main(String[] args) {
+        Shape cone = new Cone(3.0, 4.0);
+        System.out.println(cone);
+        System.out.println("Area: " + cone.area());
+        System.out.println("Volume: " + cone.volume());
+        
+        System.out.println();
+        
+        Shape cylinder = new Cylinder(2.0, 5.0);
+        System.out.println(cylinder);
+        System.out.println("Area: " + cylinder.area());
+        System.out.println("Volume: " + cylinder.volume());
+    }
+}
+
+
+--------------------------------
+import java.util.*;
+
+public class ArrayListExample {
+
+    public static void main(String[] args) {
+
+        // Create an ArrayList of Days
+        ArrayList<String> daysList = new ArrayList<String>();
+
+        // Add 7 days to the list
+        daysList.add("Sun");
+        daysList.add("Mon");
+        daysList.add("Tue");
+        daysList.add("Wed");
+        daysList.add("Thu");
+        daysList.add("Fri");
+        daysList.add("Sat");
+        
+
+        // Display the size of the list
+        System.out.println("Size of the list: " + daysList.size());
+
+        // Print all days using an iterator
+        System.out.println("All days in the list:");
+        for(String i:daysList) {
+        	System.out.println(i);
+        }
+
+        // Check if "Wed" is present in the ArrayList
+        if (daysList.contains("Wed")) {
+            System.out.println("The list contains Wed.");
+        } else {
+            System.out.println("The list does not contain Wed.");
+        }
+        
+
+        // Delete 3rd and 5th day
+        daysList.remove(2); // 3rd day is at index 2
+        daysList.remove(3); // 5th day is now at index 3
+
+        // Print all days again
+        System.out.println("All days in the list after removing 3rd and 5th day:");
+        for(String i:daysList) {
+        	System.out.println(i);
+        }
+    }
+}
+
+------------------------------------
+class Account {
+    int acno;
+    String name;
+    double bal;
+
+    // Default constructor
+    public Account() {}
+
+    // Parameterized constructor
+    public Account(int acno, String name, double bal) {
+        this.acno = acno;
+        this.name = name;
+        this.bal = bal;
+    }
+
+    // toString method
+    public String toString() {
+        return "Account Number: " + acno + "\n" +
+               "Name: " + name + "\n" +
+               "Balance: " + bal + "\n";
+    }
+
+    // Deposit method
+    public void deposit(double amount) {
+        bal += amount;
+    }
+
+    // Withdraw method
+    public void withdraw(double amount) {
+        bal -= amount;
+    }
+}
+
+// Savings subclass
+class Savings extends Account {
+    double min_bal;
+    int tran_limit;
+    double int_rate;
+    int num_transactions;
+
+    // Default constructor
+    public Savings() {
+        super();
+    }
+
+    // Parameterized constructor
+    public Savings(int acno, String name, double bal, double min_bal, int tran_limit, double int_rate) {
+        super(acno, name, bal);
+        this.min_bal = min_bal;
+        this.tran_limit = tran_limit;
+        this.int_rate = int_rate;
+        this.num_transactions = 0;
+    }
+
+    // toString method
+    public String toString() {
+        return super.toString() +
+               "Minimum Balance: " + min_bal + "\n" +
+               "Transaction Limit: " + tran_limit + "\n" +
+               "Interest Rate: " + int_rate + "\n" +
+               "Number of Transactions: " + num_transactions + "\n";
+    }
+
+    // Withdraw method
+    public void withdraw(double amount) {
+        if (num_transactions >= tran_limit) {
+            System.out.println("Transaction limit reached!");
+            return;
+        }
+
+        if (bal - amount < min_bal) {
+            System.out.println("Minimum balance requirement not met!");
+            return;
+        }
+
+        super.withdraw(amount);
+        num_transactions++;
+    }
+}
+
+// Current subclass
+class Current extends Account {
+    double min_bal;
+
+    // Default constructor
+    public Current() {
+        super();
+    }
+
+    // Parameterized constructor
+    public Current(int acno, String name, double bal, double min_bal) {
+        super(acno, name, bal);
+        this.min_bal = min_bal;
+    }
+
+    // toString method
+    public String toString() {
+        return super.toString() +
+               "Minimum Balance: " + min_bal + "\n";
+    }
+
+    // Withdraw method
+    public void withdraw(double amount) {
+        if (bal - amount < min_bal) {
+            System.out.println("Minimum balance requirement not met!");
+            return;
+        }
+
+        super.withdraw(amount);
+    }
+}
+
+// Main class
+public class BankAccount {
+    public static void main(String[] args) {
+        // Creating Savings account object
+        Savings savings = new Savings(1234, "John Doe", 10000, 5000, 3, 0.01);
+        System.out.println("Savings Account:\n" + savings);
+
+        // Deposit and Withdraw from savings account
+        savings.deposit(5000);
+        System.out.println("After Deposit:\n" + savings);
+
+        savings.withdraw(2000);
+        System.out.println("After Withdrawal:\n" + savings);
+
+        savings.withdraw(2000);
+        System.out.println("After Withdrawal:\n" + savings);
+
+        savings.withdraw(2000);
+        System.out.println("After Withdrawal:\n" + savings);
+
+        savings.withdraw(2000);
+        System.out.println("After Withdrawal:\n" + savings);
+
+        // Creating Current account object
+        Current current = new Current(5678, "Jane Smith", 50000, 10000);
+        System.out.println("Current Account:\n" + current);
+
+        // Deposit and Withdraw from current account
+        current.deposit(10000);
+        System.out.println("After Deposit:\n" + current);
+
+        current.withdraw(20000);
+        System.out.println("After Withdrawal:\n" + current);
+
+        current.withdraw(40000);
+        System.out.println("After Withdrawal:\n" + current);
+    }
+}
+--------------------------------
+import java.io.*;
+public class DataIOStream {
+public static void main(String[] args)throws FileNotFoundException,IOException {
+FileInputStream in = new FileInputStream(new File("C:\\Users\\Acer\\Desktop\\Java Practicals\\Text Files\\InFile.txt"));
+FileOutputStream out = new FileOutputStream(new File("C:\\Users\\Acer\\Desktop\\Java Practicals\\Text Files\\OutFile.txt"));
+DataInputStream din=null;
+DataOutputStream dout = null;
+//"D:\Data_Folder\Modern\Desktop\Java Practicals\Text Files\OutFile.txt"
+try {
+din = new DataInputStream(in);
+dout = new DataOutputStream(out);
+int c;
+while ((c = din.read()) != -1) {
+dout.write(c);
+}
+System.out.println("Successfully done");
+} catch(Exception e){
+e.printStackTrace();
+}
+finally {
+}
+if (din != null) {
+din.close();
+}
+if (dout != null) {
+dout.close();
+}
+}
+}
+-------------------------------
+import java.io.*;
+
+class Game implements Serializable {
+
+String game_name;
+  int no_of_players;
+
+  public Game(String name, int players) {
+    this.game_name = name;
+    this.no_of_players = players;
+  }
+
+  public String toString() {
+    return "Game: " + game_name + ", Players: " + no_of_players;
+  }
+}
+
+public class GameClass {
+	public static void main(String[] args) {
+		Game g[] = new Game[5];
+		try {
+		
+		    g[0] = new Game("Football",11);
+		    g[1] = new Game("Basketball",9);
+		    g[2] = new Game("Cricket",11);
+		    g[3] = new Game("Hockey",7);
+		    g[4] = new Game("Baseball",8);
+		    
+		
+		   FileOutputStream fout = new FileOutputStream("C:\\Users\\Acer\\Desktop\\Java Practicals\\Text Files\\ Game.txt");
+		
+		   ObjectOutputStream out = new ObjectOutputStream(fout);
+		
+		   out.writeObject(g[0]);
+		   out.writeObject(g[1]);
+		   out.writeObject(g[2]);
+		   out.writeObject(g[3]);
+		   out.writeObject(g[4]);
+		
+		   out.flush();
+		   out.close();
+		   System.out.println("Serialization successful!");
+		   }  
+		   catch (Exception e){
+		   System.out.println(e);
+		   }
+		try {
+			Game G[] = new Game[5];
+
+			   FileInputStream fin = new FileInputStream("C:\\Users\\Acer\\\\Desktop\\Java Practicals\\\\Text Files\\ Game.txt");
+
+			   ObjectInputStream in = new ObjectInputStream(fin);
+
+			   G[0]= (Game)in.readObject();
+			   G[1]= (Game)in.readObject();
+			   G[2]= (Game)in.readObject();
+			   G[3]= (Game)in.readObject();
+			   G[4]= (Game)in.readObject();
+			   
+			   in.close();
+			   System.out.println(G[0]);
+			   System.out.println(G[1]);
+			   System.out.println(G[2]);
+			   System.out.println(G[3]);
+			   System.out.println(G[4]);
+			   }
+			       
+			   catch (Exception e){
+			   System.out.println(e);
+			   }
+
+
+			}
+
+		}
+=--------------------------------------------
+class Employee {
+	  int id;
+	  String name;
+	  
+	  public Employee() {}
+	  public Employee(int id, String name) {
+	    this.id = id;
+	    this.name = name;
+	  }
+
+	  public String toString() {
+	    return "Employee [id=" + id + ", name=" + name + "]";
+	  }
+}
+
+class Manager extends Employee {
+	  String dept;
+	  double salary;
+	  
+	  public Manager() {
+		  super();
+	  }
+	  public Manager(int id, String name, String dept, double salary) {
+	    super(id, name);
+	    this.dept = dept;
+	    this.salary = salary;
+	  }
+
+	  public void setSalary(double salary) {
+	    this.salary = salary;
+	  }
+
+	  public double getSalary() {
+	    return salary;
+	  }
+
+	  public String toString() {
+	    return super.toString() + " Manager [dept=" + dept + ", salary=" + salary + "]";
+	  }
+}
+
+class SalesManager extends Manager {
+	  double bonus;
+
+	  public SalesManager() {
+		  super();
+	  }
+	  public SalesManager(int id, String name, String dept, double salary, double bonus) {
+	    super(id, name, dept, salary);
+	    this.bonus = bonus;
+	  }
+
+	  public double getSalary() {
+	    return super.getSalary() + bonus;
+	  }
+
+	  public String toString() {
+	    return super.toString() + " SalesManager [bonus=" + bonus + "]";
+	  }
+	}
+
+public class InheritanceEmployee {
+	  public static void main(String[] args) {
+	    Manager manager = new Manager(1, "John Doe", "Marketing", 50000.0);
+	    System.out.println(manager.toString() + " Salary: " + manager.getSalary());
+
+	    SalesManager salesManager = new SalesManager(2, "Jane Smith", "Sales", 60000.0, 10000.0);
+	    System.out.println(salesManager.toString() + " Salary: " + salesManager.getSalary());
+	  }
+}
+------------------------------
+interface Polygon {
+	    double area();
+	}
+	
+	class Square implements Polygon {
+	    double side;
+	
+	    public Square(double side) {
+	        this.side = side;
+	    }
+	
+	    @Override
+	    public double area() {
+	        return side * side;
+	    }
+	    
+	    public String toString() {
+		    return "Square:\n"+
+		    		"side="+side;
+	    }
+	}
+	
+	class Rectangle implements Polygon {
+	    double length;
+	    double width;
+	
+	    public Rectangle(double length, double width) {
+	        this.length = length;
+	        this.width = width;
+	    }
+	
+	    @Override
+	    public double area() {
+	        return length * width;
+	    }
+	    
+	    public String toString() {
+		    return "Rectangle:\n"+
+		    		"length="+length+
+		    		"\nwidth="+width;
+	    }
+	}
+
+	public class InterfacePolygon {
+	    public static void main(String[] args) {
+	        Square square = new Square(5);
+	        System.out.println(square);
+	        System.out.println("Area of Square: " + square.area());
+	        
+	        System.out.println();
+	
+	        Rectangle rectangle = new Rectangle(3, 4);
+	        System.out.println(rectangle);
+	        System.out.println("Area of Rectangle: " + rectangle.area());
+	    }
+	}
+	
+-----------------------------------------
+
+import java.util.LinkedList;
+
+public class LinkedListExample {
+    public static void main(String[] args) {
+        // Create a linked list of colors
+        LinkedList<String> colors = new LinkedList<>();
+
+        // Add four colors to the list
+        colors.add("red");
+        colors.add("green");
+        colors.add("blue");
+        colors.add("yellow");
+
+        // Display all colors using an iterator
+        for(String i:colors) {
+        	System.out.println(i);
+        }
+
+        // Add two new colors at the beginning of the linked list
+        colors.addFirst("orange");
+        colors.addFirst("purple");
+        
+        System.out.println();
+        
+
+        // Remove the last color from the list
+        colors.removeLast();
+        // Display all colors using an iterator
+        for(String i:colors) {
+        	System.out.println(i);
+        }
+    }
+}
+---------------------------------------------
+
+import java.util.*;
+
+public class StudentHashtable {
+
+    public static void main(String[] args) {
+        
+        // Create a new Hashtable
+        Hashtable<Integer, String> student = new Hashtable<>();
+        
+        // Add records of 5 students to it
+        student.put(1, "Alice");
+        student.put(2, "Bob");
+        student.put(3, "Charlie"); 
+        student.put(4, "John");
+        student.put(5, "Emily");
+        
+        // Display the elements of the Hashtable
+        System.out.println("Hashtable before removing John: " + student);
+        
+        // Remove student with name "John"
+        student.values().removeIf(name -> name.equals("John"));
+        
+        // Display the elements of the Hashtable again
+        System.out.println("Hashtable after removing John: " + student);
+    }
+}
+----------------------------------------
+import java.util.*;
+
+public class VectorExample {
+   public static void main(String[] args) {
+      Vector<Object> vec = new Vector<Object>();
+      
+      // Print initial capacity of vector
+      System.out.println("Initial capacity of vector: " + vec.capacity());
+      
+      // Check if vector is empty
+      System.out.println("Is vector empty? " + vec.isEmpty());
+      
+      // Add 4 objects to vector
+      vec.add(new Integer(10));
+      vec.add(new Float(3.14));
+      vec.add(new String("Hello"));
+      vec.add(new StringBuffer("world"));
+      
+      // Display all elements of vector
+      System.out.println("Elements in vector: ");
+      for (Object obj : vec) {
+         System.out.println(obj);
+      }
+      
+      // Delete all elements of vector
+      vec.clear();
+      System.out.println("Vector after clearing: " + vec);
+   }
+}
+--------------------------------------
+package display;
+import trigonometry.Trigonometry;
+
+import java.util.Arrays;
+
+import statistics.Statistics;
+
+public class Display {
+  public static void main(String[] args) {
+    double angle = Math.PI / 4;
+    System.out.println("Sine of " + angle + " is " + Trigonometry.sine(angle));
+    System.out.println("Cosine of " + angle + " is " + Trigonometry.cosine(angle));
+    System.out.println("Tan of " + angle + " is " + Trigonometry.tan(angle));
+
+    double[] A = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+    System.out.println("Mean of " + Arrays.toString(A) + " is " + Statistics.mean(A));
+    System.out.println("Median of " + Arrays.toString(A) + " is " + Statistics.median(A));
+    System.out.println("Mode of " + Arrays.toString(A) + " is " + Statistics.mode(A));
+  }
+}
+-----
+package statistics;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Statistics {
+  public static double mean(double[] A) {
+    double sum = 0.0;
+    for (double a : A) {
+      sum += a;
+    }
+    return sum / A.length;
+  }
+
+  public static double median(double[] A) {
+    Arrays.sort(A);
+    if (A.length % 2 == 0) {
+      return (A[A.length/2 - 1] + A[A.length/2]) / 2.0;
+    } else {
+      return A[A.length/2];
+    }
+  }
+
+  public static double mode(double[] A) {
+    Map<Double, Integer> frequency = new HashMap<>();
+    for (double a : A) {
+      frequency.put(a, frequency.getOrDefault(a, 0) + 1);
+    }
+    double mode = A[0];
+    int maxFrequency = 0;
+    for (Map.Entry<Double, Integer> entry : frequency.entrySet()) {
+      if (entry.getValue() > maxFrequency) {
+        mode = entry.getKey();
+        maxFrequency = entry.getValue();
+      }
+    }
+    return mode;
+  }
+}
+---------------
+package trigonometry;
+
+public class Trigonometry {
+  public static double sine(double angle) {
+    return Math.sin(angle);
+  }
+
+  public static double cosine(double angle) {
+    return Math.cos(angle);
+  }
+
+  public static double tan(double angle) {
+    return Math.tan(angle);
+  }
+}
+------------------------------
+import java.util.Scanner;
+
+public class MultiplyClass {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);// Reads a string input from the user
+
+        // Read the dimensions of matrices A and B from the user
+        System.out.print("Enter the number of rows of matrix A: ");
+        int rowsA = sc.nextInt();  // Reads an integer input from the user
+        System.out.print("Enter the number of columns of matrix A: ");
+        int colsA = sc.nextInt();
+        System.out.print("Enter the number of rows of matrix B: ");
+        int rowsB = sc.nextInt();
+        System.out.print("Enter the number of columns of matrix B: ");
+        int colsB = sc.nextInt();
+
+        // Check if matrix multiplication is possible
+        if (colsA != rowsB) {
+            System.out.println("Matrix multiplication is not possible.");
+            System.exit(0);
+        }
+
+        // Declare matrices A, B, and C
+        int[][] A = new int[rowsA][colsA];
+        int[][] B = new int[rowsB][colsB];
+        int[][] C = new int[rowsA][colsB]; 
+
+        // Read matrix A from the user
+        System.out.println("Enter the elements of matrix A:");
+        for (int i = 0; i < rowsA; i++) {
+            for (int j = 0; j < colsA; j++) {
+                A[i][j] = sc.nextInt();
+            }
+        }
+
+        // Read matrix B from the user
+        System.out.println("Enter the elements of matrix B:");
+        for (int i = 0; i < rowsB; i++) {
+            for (int j = 0; j < colsB; j++) {
+                B[i][j] = sc.nextInt();
+            }
+        }
+
+        // Perform matrix multiplication and store the result in matrix C
+        for (int i = 0; i < rowsA; i++) {
+            for (int j = 0; j < colsB; j++) {
+                for (int k = 0; k < colsA; k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+
+        // Print the result matrix C
+        System.out.println("Result matrix C:");
+        for (int i = 0; i < rowsA; i++) {
+            for (int j = 0; j < colsB; j++) {
+                System.out.print(C[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        sc.close();
+    }
+}
+----------------------
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+public class Conversion extends JFrame implements ActionListener {
+	JLabel m,cm;
+	JTextField tfm,tfcm;
+	JButton convert;
+	
+	Conversion(){
+		m=new JLabel("METER");
+		cm=new JLabel("CENTIMETER");
+		
+		tfm=new JTextField(15);
+		tfcm=new JTextField(15);
+		
+		convert=new JButton("CONVERT");
+		
+		setLayout(new FlowLayout());
+		
+		add(m);
+		add(tfm);
+		add(cm);
+		add(tfcm);
+		add(convert);
+		
+		convert.addActionListener(this);
+		
+		setSize(300,300);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	public void actionPerformed(ActionEvent e) {
+		String s=e.getActionCommand();
+		if(s.equals("CONVERT")) {
+			int n=Integer.parseInt(tfm.getText());
+			tfcm.setText(""+n*100);
+		}
+		
+	}
+	public static void main(String[]args) {
+		new Conversion();
+	}
+}
+-----------------------------------
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class LoginPass extends JFrame implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    
+    
+    JLabel l1, l2;  //labels
+    JTextField tf1;  	//username textfield
+    JPasswordField pf; 	//password textfield
+    JButton login;      //button
+   
+//    private JTextField tfl;
+    LoginPass() {
+        l1 = new JLabel("user name");
+        l2 = new JLabel("password");
+        tf1 = new JTextField(15);
+        pf = new JPasswordField(15);
+        login = new JButton("login");
+
+        setLayout(new FlowLayout());
+        setSize(300, 300);
+
+        add(l1);
+        add(tf1);
+        add(l2);
+        add(pf);
+        add(login);
+
+        login.addActionListener(this);
+        setVisible(true);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        System.out.println(s);
+        String l = tf1.getText();
+        if (s.equals("Login")) {
+            if (l.equals("sss") && pf.getText().equals("0000")) {
+                JOptionPane.showMessageDialog(this, "login successful", "VALID", JOptionPane.INFORMATION_MESSAGE);
+            } else
+                JOptionPane.showMessageDialog(this, "invalid username ", "ERROR", JOptionPane.ERROR_MESSAGE);
+
+	            tf1.setText("");
+	            pf.setText("");
+        }
+    }
+    
+    
+    public static void main(String[] args) {
+        new LoginPass();
+    }
+    
+}
+---------------------------------------
+import java.awt.*;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+public class MenuEg extends JFrame {
+
+	JMenuBar mb;
+	JMenu file, edit, search;
+	JMenuItem New, open, save;
+	JMenuItem cut, copy, paste;
+	JMenuItem find, replace;
+	
+	MenuEg(){
+		mb=new JMenuBar();
+		file=new JMenu("file");
+		edit=new JMenu("Edit");
+		search=new JMenu("search");
+		
+		New =new JMenuItem("New");
+		open =new JMenuItem("open");
+		save =new JMenuItem("save");
+		cut=new JMenuItem("Cut");
+		copy=new JMenuItem("Copy");
+		paste=new JMenuItem("Paste");
+		find=new JMenuItem("Find");
+		replace=new JMenuItem("Replace");
+		
+		setJMenuBar(mb);
+		
+		mb.add(file);
+		mb.add(edit);
+		mb.add(search);
+		
+		file.add(New);
+		file.add(open);
+		file.add(save);
+		
+		edit.add(cut);
+		edit.add(copy);
+		edit.add(paste);
+		
+		search.add(find);
+		search.add(replace);
+	   
+		setSize(300,300);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		}
+	  public static void main(String[]args) {
+		  new MenuEg();
+	  }
+
+}
+-----------------------------------------
+import javax.swing.*;
+import java.awt.*;
+
+public class RegistrationForm extends JFrame {
+    private JLabel nameLabel, emailLabel, passwordLabel;
+    private JTextField nameField, emailField;
+    private JPasswordField passwordField;
+    private JButton registerButton;
+
+    public RegistrationForm() {
+        setTitle("Registration Form");
+        setSize(400, 250);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        nameLabel = new JLabel("Name:");
+        emailLabel = new JLabel("Email:");
+        passwordLabel = new JLabel("Password:");
+        nameField = new JTextField(20);
+        emailField = new JTextField(20);
+        passwordField = new JPasswordField(20);
+        registerButton = new JButton("Register");
+
+        JPanel panel = new JPanel(new GridLayout(4, 2));
+        panel.add(nameLabel);
+        panel.add(nameField);
+        panel.add(emailLabel);
+        panel.add(emailField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(new JLabel());
+        panel.add(registerButton);
+
+        add(panel);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new RegistrationForm();
+    }
+}
+------------------------------------------------------
+
+public class TransposeMatrixClass {
+			   public static void main(String[] args) {
+			      int[][] matrix = { {1, 2, 3, 4, 5, 6},
+			                         {7, 8, 9, 10, 11, 12},
+			                         {13, 14, 15, 16, 17, 18},
+			                         {19, 20, 21, 22, 23, 24} };
+			      
+			      System.out.println("Original Matrix:");
+			      displayMatrix(matrix);
+			      
+			      int[][] transpose = transposeMatrix(matrix);
+			      
+			      System.out.println("\nTransposed Matrix:");
+			      displayMatrix(transpose);
+			   }
+			   
+			   // function to transpose a matrix
+			   public static int[][] transposeMatrix(int[][] matrix) {
+			      int rows = matrix.length;
+			      int cols = matrix[0].length;
+			      int[][] transpose = new int[cols][rows];
+			      
+			      for(int i=0; i<rows; i++) {
+			         for(int j=0; j<cols; j++) {
+			            transpose[j][i] = matrix[i][j];
+			         }
+			      }
+			      
+			      return transpose;
+			   }
+			   
+			   // function to display a matrix
+			   public static void displayMatrix(int[][] matrix) {
+			      int rows = matrix.length;
+			      int cols = matrix[0].length;
+			      
+			      for(int i=0; i<rows; i++) {
+			         for(int j=0; j<cols; j++) {
+			            System.out.print(matrix[i][j] + " ");
+			         }
+			         System.out.println();
+			      }
+			   }
+			}
+
+
+
